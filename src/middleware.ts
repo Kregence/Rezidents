@@ -45,7 +45,7 @@ export async function middleware(request: NextRequest) {
 
   const { pathname } = request.nextUrl
 
-  const isAuthRoute = pathname.startsWith('/login') || pathname.startsWith('/register')
+  const isAuthRoute = pathname === '/login' || pathname === '/register'
   const isProtectedRoute = pathname.startsWith('/super-admin') || 
                           pathname.startsWith('/street-admin') || 
                           pathname.startsWith('/resident')
@@ -56,20 +56,7 @@ export async function middleware(request: NextRequest) {
   }
 
   if (user && isAuthRoute) {
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('role')
-      .eq('id', user.id)
-      .single()
-
-    if (profile) {
-      const redirectUrl = profile.role === 'super_admin' 
-        ? '/super-admin' 
-        : profile.role === 'street_admin' 
-          ? '/street-admin' 
-          : '/resident'
-      return NextResponse.redirect(new URL(redirectUrl, request.url))
-    }
+    return NextResponse.redirect(new URL('/', request.url))
   }
 
   return response
