@@ -31,11 +31,18 @@ export default function LoginPage() {
     const { data: { user } } = await supabase.auth.getUser()
     
     if (user) {
-      const { data: profile } = await supabase
+      const { data: profile, error: profileError } = await supabase
         .from('profiles')
         .select('role')
         .eq('id', user.id)
-        .single()
+        .maybeSingle()
+
+      if (profileError) {
+        console.error('Profile fetch error:', profileError)
+        setError('Failed to fetch profile. Please try again.')
+        setLoading(false)
+        return
+      }
 
       if (profile) {
         const redirectUrl = profile.role === 'super_admin' 
